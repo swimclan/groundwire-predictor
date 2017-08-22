@@ -16,5 +16,5 @@ class Screener(Model):
 
     def collections(self):
         return {
-            DataList: Instruments
+            'DataList': Instruments
         }

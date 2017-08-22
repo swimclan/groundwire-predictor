@@ -1,8 +1,18 @@
 from __setmodules__ import modulize
-modulize('./models', './lib', './collections')
+modulize('./__models', './__lib', './__collections')
 
 from Screener import Screener
+from ChartAnalysis import ChartAnalysis
 
-screener = Screener()
+def printStock(stock):
+    print stock.get('Sym')
 
-print screener
+screener = Screener().fetch()
+stocks = screener.get('DataList')
+
+# stocks.each(printTicker)
+
+chart = ChartAnalysis({'startdate': 1503322200, 'enddate': 1503345600, 'ticker': 'GEVO'})
+chart.fetch()
+
+print chart.get('chart').get('result').at(0).get('indicators').get('quote').at(0).get('volume')

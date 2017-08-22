@@ -25,6 +25,7 @@ _config = {
             'method': 'get',
             'url': {
                 'root': 'https://query1.finance.yahoo.com/v7/finance/chart/',
+                'ticker': 'AAPL',
                 'params': {
                     'corsDomain'        :   'finance.yahoo.com',
                     'includePrePost'    :   False,

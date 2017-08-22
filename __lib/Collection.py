@@ -5,12 +5,17 @@ class Collection:
     def __init__(self, options=[]):
         self.models = []
         self.url = None
-        self.modelClass = None
-        self._populate(options)
+        self.length = 0
+        self.__populate(options)
     
-    def _populate(self, models):
+    def modelClass(self):
+        return None
+
+    def __populate(self, models):
+        Model = self.modelClass()
         for model in models:
-            self.models.append(self.modelClass(model))
+            self.models.append(Model(model))
+            self.length += 1
         return self
 
     def toJSON(self):
@@ -30,4 +35,9 @@ class Collection:
         json_response = json.loads(opener.read())
         print type(json_response)
         if type(json_response) is list:
-            return self._populate(json_response)
+            return self.__populate(json_response)
+
+    def each(self, callback):
+        for model in self.models:
+            callback(model)
+        return True
