@@ -13,3 +13,11 @@ def index_of(arr, target):
         if target == val:
             ret = idx
     return ret
+
+def parse_env(file):
+    ret = {}
+    for line in file.readlines():   
+        line_list = line.split('=')
+        ret[line_list[0]] = line_list[1][0:-1]
+
+    return ret

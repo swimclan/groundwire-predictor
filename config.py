@@ -1,4 +1,5 @@
 from pydash import objects
+import process
 
 _config = {
     'msn': {
@@ -37,6 +38,27 @@ _config = {
                 }
             }
         }
+    },
+    'db': {
+        'name': 'groundwire',
+        'connections': 
+            {'production': {
+                'host': '127.0.0.1',
+                'port': 5432,
+                'user': {
+                    'username': process.env['DB_USER'],
+                    'password': process.env['DB_PASS']
+                }
+                },
+            'development': {
+                'host': '127.0.0.1',
+                'port': 5432,
+                'user': {
+                    'username': process.env['DB_USER'],
+                    'password': process.env['DB_PASS']
+                }
+                }
+            }
     }
 }
 

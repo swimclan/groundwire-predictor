@@ -6,12 +6,12 @@ class Collection:
         self.models = []
         self.url = None
         self.length = 0
-        self.__populate(options)
+        self.populate(options)
     
     def modelClass(self):
         return None
 
-    def __populate(self, models):
+    def populate(self, models):
         Model = self.modelClass()
         for model in models:
             self.models.append(Model(model))
@@ -35,7 +35,7 @@ class Collection:
         json_response = json.loads(opener.read())
         print type(json_response)
         if type(json_response) is list:
-            return self.__populate(json_response)
+            return self.populate(json_response)
 
     def each(self, callback):
         for model in self.models:
