@@ -41,3 +41,12 @@ class Collection:
         for model in self.models:
             callback(model)
         return True
+
+    def append(self, model):
+        Model = self.modelClass()
+        self.models.append(Model(model))
+        self.length += 1
+
+    def destroy(self):
+        self.models = []
+        return self

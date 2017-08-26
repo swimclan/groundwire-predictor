@@ -47,3 +47,6 @@ class Model:
         json_response = json.loads(opener.read())
         self.__populate(json_response)
         return self
+
+    def destroy(self):
+        self.attributes = {}
