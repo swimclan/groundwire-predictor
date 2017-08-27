@@ -13,7 +13,7 @@ class Observation(Model):
             'num_new_lows',
             'num_highs_abv_avg_vol',
             'num_highs_blw_avg_vol',
-            'num_lows_blw_avg_vol',
+            'num_lows_abv_avg_vol',
             'num_lows_blw_avg_vol',
             'num_new_highs_am',
             'num_new_highs_pm',

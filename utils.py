@@ -1,6 +1,7 @@
 # utils module with functions from lodash and other nice little diddys
 from datetime import datetime, timedelta, date
 from pydash import collections
+from pydash import numerical
 
 def last_weekday(dt=datetime.now()):
     found = False
@@ -56,3 +57,12 @@ def parse_env(file):
 
 def each(collection, f):
     collections.for_each(collection, f)
+
+def average(list):
+    return numerical.mean(list)
+
+def map(arr, iteratee):
+    ret = []
+    for key, item in enumerate(arr):
+        ret.append(iteratee(item, key, arr))
+    return ret

@@ -1,6 +1,7 @@
 from urllib2 import urlopen
 import json
 import utils as _
+import process
 
 class Model:
     def __init__(self, options={}):
@@ -43,10 +44,16 @@ class Model:
         return self
 
     def fetch(self):
-        opener = urlopen(self.url)
-        json_response = json.loads(opener.read())
+        try:
+            opener = urlopen(self.url, timeout=float(process.env['FETCH_TIMEOUT']))
+            json_response = json.loads(opener.read())
+        except:
+            json_response = {}
         self.__populate(json_response)
         return self
+
+    def has(self, prop):
+        return _.has(self.attributes, prop)
 
     def destroy(self):
         self.attributes = {}
