@@ -26,9 +26,9 @@ class Sequencer:
         print '# charts initialized into observations:', self.observations.length
         self.setNumNewHighs()
         self.setNumNewLows()
-        print self.observations.at(18).toJSON()
-        print self.charts.at(18).toJSON()
-
+        self.setTallestCandles()
+        print self.observations.at(19).toJSON()
+        # print self.charts.at(3).get('candlesticks').toJSON()
 
     def appendObservation(self, model, index):
         self.observations.append(model)
@@ -55,7 +55,6 @@ class Sequencer:
             'enddate': self.yesterday_market_times[1],
             'ticker': symbol
         })
-        print chart_instance.url
         chart = chart_instance.fetch()
         results = chart.get('chart').get('result').at(0)
         if not results.has('timestamp'):
@@ -75,29 +74,38 @@ class Sequencer:
             'lows': lows,
             'volumes': volumes
         })
-        return_chart.setAvgVolume()
-        return_chart.normalizePrices()
         self.charts.append(return_chart)
         return return_chart
 
     def getNumNewHighs(self, chart, index):
         print 'getNumNewHighs()'
+        highs = chart.get('highs')
+        times = chart.get('timestamps')
+        volumes = chart.get('volumes')
         count = 0
         abvVolCount = 0
         blwVolCount = 0
+        amCount = 0
+        pmCount = 0
         avgVol = chart.get('avg_volume')
         max_high = 0
-        for key, high in enumerate(chart.get('highs')):
+        for key, high in enumerate(highs):
             if high and high > max_high:
                 max_high = high
                 count += 1
-                if chart.get('volumes')[key] > avgVol:
+                if volumes[key] > avgVol:
                     abvVolCount += 1
                 else:
                     blwVolCount += 1
+                if utils.isMorning(times[key]):
+                    amCount += 1
+                else:
+                    pmCount += 1
         self.observations.at(index).set('num_new_highs', count)
         self.observations.at(index).set('num_highs_abv_avg_vol', abvVolCount)
         self.observations.at(index).set('num_highs_blw_avg_vol', blwVolCount)
+        self.observations.at(index).set('num_new_highs_am', amCount)
+        self.observations.at(index).set('num_new_highs_pm', pmCount)
         return count
 
     def setNumNewHighs(self):
@@ -106,24 +114,52 @@ class Sequencer:
 
     def getNumNewLows(self, chart, index):
         print 'getNumNewLows()'
+        lows = chart.get('lows')
+        times = chart.get('timestamps')
+        volumes = chart.get('volumes')
         count = 0
         abvVolCount = 0
         blwVolCount = 0
+        amCount = 0
+        pmCount = 0
         avgVol = chart.get('avg_volume')
         min_low = float('inf')
-        for key, low in enumerate(chart.get('lows')):
+        for key, low in enumerate(lows):
             if low and low < min_low:
                 min_low = low
                 count += 1
-                if chart.get('volumes')[key] > avgVol:
+                if volumes[key] > avgVol:
                     abvVolCount += 1
                 else:
                     blwVolCount += 1
+                if utils.isMorning(times[key]):
+                    amCount += 1
+                else:
+                    pmCount += 1
         self.observations.at(index).set('num_new_lows', count)
         self.observations.at(index).set('num_lows_abv_avg_vol', abvVolCount)
         self.observations.at(index).set('num_lows_blw_avg_vol', blwVolCount)
+        self.observations.at(index).set('num_new_lows_am', amCount)
+        self.observations.at(index).set('num_new_lows_pm', pmCount)
         return count
 
     def setNumNewLows(self):
         print 'setNumNewLows()'
         self.charts.each(self.getNumNewLows)
+
+    def getTallestCandles(self, chart, index):
+        print 'getTallestCandles()'
+        candles = chart.get('candlesticks').toJSON()
+        tallestGreen = 0.0
+        tallestRed = 0.0
+        for candle in candles:
+            if candle['color'] == 'green' and candle['relative_height'] > tallestGreen:
+                tallestGreen = candle['relative_height']
+            if candle['color'] == 'red' and candle['relative_height'] > tallestRed:
+                tallestRed = candle['relative_height']
+        self.observations.at(index).set('tallest_green_candlestick', tallestGreen)
+        self.observations.at(index).set('tallest_red_candlestick', tallestRed)
+
+    def setTallestCandles(self):
+        print 'setTallestCandles()'
+        self.charts.each(self.getTallestCandles)

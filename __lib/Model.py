@@ -18,16 +18,16 @@ class Model:
     def children(self):
         return {}
 
-    def get(self, property):
-        return self.attributes[property]
+    def get(self, prop):
+        return self.attributes[prop]
 
-    def set(self, property, value):
-        if _.index_of(self.props(), property) != -1:
-            self.attributes[property] = value
+    def set(self, prop, value):
+        if _.index_of(self.props(), prop) != -1:
+            self.attributes[prop] = value
+            self.onChange({prop: value})
             return self
         else:
             raise ValueError("Invalid model property passed: %s" % property)
-
     
     def toJSON(self):
         return self.attributes
@@ -38,9 +38,13 @@ class Model:
                 if _.has(self.children(), prop):
                     self.attributes[prop] = self.children()[prop](options[prop])
                 elif _.has(self.collections(), prop):
-                    self.attributes[prop] = self.collections()[prop](options[prop])
+                    if isinstance(options[prop], list):
+                        self.attributes[prop] = self.collections()[prop](options[prop])
+                    else:
+                        self.attributes[prop] = options[prop]
                 else:
                     self.attributes[prop] = options[prop]
+        self.onPopulate(self.toJSON())
         return self
 
     def fetch(self):
@@ -57,3 +61,9 @@ class Model:
 
     def destroy(self):
         self.attributes = {}
+
+    def onPopulate(self, obj={}):
+        return None
+
+    def onChange(self, obj):
+        return None

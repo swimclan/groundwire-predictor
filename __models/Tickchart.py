@@ -1,10 +1,11 @@
 from Model import Model
+from Candlesticks import Candlesticks
 import utils
 
 class Tickchart(Model):
     def __init__(self, options={}):
         Model.__init__(self, options)
-    
+
     def props(self):
         return [
             'opens',
@@ -14,8 +15,21 @@ class Tickchart(Model):
             'symbol',
             'volumes',
             'timestamps',
-            'avg_volume'
+            'avg_volume',
+            'percent_change',
+            'candlesticks'
         ]
+
+    def collections(self):
+        return {
+            'candlesticks': Candlesticks
+        }
+
+    def onPopulate(self, chart):
+        self.setAvgVolume()
+        self.normalizePrices()
+        self.setPercentChange()
+        self.setCandlesticks()
 
     def setAvgVolume(self):
         volumes = self.get('volumes')
@@ -59,5 +73,31 @@ class Tickchart(Model):
             return 0
         else:
             return price
-        
 
+    def setPercentChange(self):
+        num_ticks = len(self.get('timestamps'))
+        i = 0
+        open = self.get('opens')[i]
+        while open == 0:
+            i += 1
+            open = self.get('opens')[i]
+        close = self.get('closes')[num_ticks-1]
+        percent_change = (close - open) / open
+        self.set('percent_change', percent_change)
+
+    def setCandlesticks(self):
+        candlesticks = Candlesticks()
+        highs = self.get('highs')
+        lows = self.get('lows')
+        opens = self.get('opens')
+        closes = self.get('closes')
+        times = self.get('timestamps')
+        for key, time in enumerate(times):
+            candlesticks.append({
+                'time': time,
+                'high': highs[key],
+                'low': lows[key],
+                'open': opens[key],
+                'close': closes[key]
+            })
+        self.set('candlesticks', candlesticks)

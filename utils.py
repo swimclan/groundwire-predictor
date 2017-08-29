@@ -66,3 +66,9 @@ def map(arr, iteratee):
     for key, item in enumerate(arr):
         ret.append(iteratee(item, key, arr))
     return ret
+
+def isMorning(epoch):
+    dt = datetime.utcfromtimestamp(epoch)
+    if dt.hour >= 16:
+        return False
+    return True

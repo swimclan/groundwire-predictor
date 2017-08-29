@@ -13,9 +13,10 @@ import Process
 process = Process.getInstance(open('trading-data/.env', 'r'))
 
 # kick off data collection sequence
-from Sequencer import Sequencer
-sequencer = Sequencer(datetime(2017, 8, 27))
-sequencer.start()
+if process.env['MASTER_SWITCH'] == 'on':
+    from Sequencer import Sequencer
+    sequencer = Sequencer(datetime(2017, 8, 28))
+    sequencer.start()
 
 ###################### S A M P L E  C O D E  S T A R T ######################
 
