@@ -53,7 +53,7 @@ class Model:
             json_response = json.loads(opener.read())
         except:
             json_response = {}
-        self.__populate(json_response)
+        self.onFetch(json_response)
         return self
 
     def has(self, prop):
@@ -67,3 +67,6 @@ class Model:
 
     def onChange(self, obj):
         return None
+
+    def onFetch(self, body):
+        self.__populate(body)

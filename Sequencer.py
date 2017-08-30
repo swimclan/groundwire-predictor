@@ -4,6 +4,7 @@ from Screener import Screener
 from ChartAnalysis import ChartAnalysis
 from Tickcharts import Tickcharts
 from Tickchart import Tickchart
+from News import News
 import utils
 import re
 
@@ -22,13 +23,15 @@ class Sequencer:
     def sequence(self):
         self.getInstruments()
         self.instruments.each(self.getChart)
+        self.setNewsitems()
         self.initialize_observations()
         print '# charts initialized into observations:', self.observations.length
         self.setNumNewHighs()
         self.setNumNewLows()
         self.setTallestCandles()
-        print self.observations.at(19).toJSON()
-        # print self.charts.at(3).get('candlesticks').toJSON()
+        # print self.observations.at(19).toJSON()
+        print self.charts.at(3).get('news').at(2).toJSON()
+
 
     def appendObservation(self, model, index):
         self.observations.append(model)
@@ -163,3 +166,14 @@ class Sequencer:
     def setTallestCandles(self):
         print 'setTallestCandles()'
         self.charts.each(self.getTallestCandles)
+
+    def getNewsitems(self, chart, index):
+        print 'getNewsitems()'
+        newsitems = News({'symbol': chart.get('symbol')})
+        news = newsitems.fetch()
+        chart.set('news', newsitems.get('items'))
+
+    def setNewsitems(self):
+        print 'setNewsitems()'
+        self.charts.each(self.getNewsitems)
+

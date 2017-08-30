@@ -72,3 +72,8 @@ def isMorning(epoch):
     if dt.hour >= 16:
         return False
     return True
+
+def parsePubDate(d):
+    # Wed, 26 Jul 2017 19:00:00 +0000
+    ret = datetime.strptime(d[0:25], "%a, %d %b %Y %H:%M:%S")
+    return ret

@@ -37,6 +37,15 @@ _config = {
                     'period2'           :   1503086400,
                 }
             }
+        },
+        'rss': {
+            'method': 'get',
+            'url': {
+                'root': 'http://finance.yahoo.com/rss/headline',
+                'params': {
+                    's'     : 'AAPL'
+                }
+            }
         }
     },
     'db': {

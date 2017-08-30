@@ -1,5 +1,6 @@
 from Model import Model
 from Candlesticks import Candlesticks
+from Newsitems import Newsitems
 import utils
 
 class Tickchart(Model):
@@ -17,12 +18,14 @@ class Tickchart(Model):
             'timestamps',
             'avg_volume',
             'percent_change',
-            'candlesticks'
+            'candlesticks',
+            'news'
         ]
 
     def collections(self):
         return {
-            'candlesticks': Candlesticks
+            'candlesticks': Candlesticks,
+            'news': Newsitems
         }
 
     def onPopulate(self, chart):
