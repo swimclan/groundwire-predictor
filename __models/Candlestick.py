@@ -39,8 +39,10 @@ class Candlestick(Model):
         self.set('absolute_height', abs_height)
 
     def getRelativeHeight(self):
+        if self.get('open') == 0 and self.get('close') == 0:
+            return self.set('relative_height', 0.0)
         if self.get('color') == 'green':
             rel = self.get('absolute_height') / self.get('open')
         else:
             rel = self.get('absolute_height') / self.get('close')
-        self.set('relative_height', rel)
+        return self.set('relative_height', rel)

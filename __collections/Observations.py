@@ -11,7 +11,21 @@ class Observations(Collection):
         return Observation
     
     def fetch(self):
-        data = self.db.fetchall()
+        self.db.connect()
+        try:
+            data = self.db.fetchall()
+            print 'Successfully fetched observations'
+        except:
+            data = []
+            print 'ERROR! Unable to fetch observations'
         self.populate(data)
+        self.db.close()
+        return self
+
+    def create(self):
+        self.db.connect()
+        for item in self.toJSON():
+            self.db.create(item)
+        self.db.commit()
         self.db.close()
         return self

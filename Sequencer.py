@@ -15,6 +15,7 @@ class Sequencer:
         print 'Observations instance initialized with length:', self.observations.length
         self.today = dt
         self.yesterday_market_times = utils.previous_market_times(self.today)
+        self.today_market_times = utils.current_market_times(self.today)
         self.charts = Tickcharts()
 
     def start(self):
@@ -23,15 +24,19 @@ class Sequencer:
     def sequence(self):
         self.getInstruments()
         self.instruments.each(self.getChart)
-        self.setNewsitems()
         self.initialize_observations()
-        print '# charts initialized into observations:', self.observations.length
+        self.setNews()
         self.setNumNewHighs()
         self.setNumNewLows()
         self.setTallestCandles()
-        # print self.observations.at(19).toJSON()
-        print self.charts.at(3).get('news').at(2).toJSON()
+        # self.printObservations()
+        self.observations.create()
+    
+    def printObservations(self):
+        self.observations.each(self.printObservation)
 
+    def printObservation(self, observation, index):
+        print observation.toJSON()
 
     def appendObservation(self, model, index):
         self.observations.append(model)
@@ -77,8 +82,39 @@ class Sequencer:
             'lows': lows,
             'volumes': volumes
         })
+        last_close = return_chart.get('closes')[len(closes)-1]
+        tomorrow_open_margin = self.getTodaysOpenMargin(symbol, last_close)
+        return_chart.set('next_market_open_margin', tomorrow_open_margin)
         self.charts.append(return_chart)
         return return_chart
+
+    def getTodaysOpenMargin(self, symbol, last_close):
+        print 'getTodaysOpenMargin()'
+        chart_instance = ChartAnalysis({
+            'startdate': self.today_market_times[0],
+            'enddate': self.today_market_times[1],
+            'ticker': symbol
+        })
+        chart = chart_instance.fetch()
+        results = chart.get('chart').get('result').at(0)
+        today_timestamps = results.get('timestamp')
+        today_opens = results.get('indicators').get('quote').at(0).get('open')
+        today_closes = results.get('indicators').get('quote').at(0).get('close')
+        today_highs = results.get('indicators').get('quote').at(0).get('high')
+        today_lows = results.get('indicators').get('quote').at(0).get('low')
+        today_volumes = results.get('indicators').get('quote').at(0).get('volume')
+        today_chart = Tickchart({
+            'symbol': symbol,
+            'timestamps': today_timestamps,
+            'opens': today_opens,
+            'closes': today_closes,
+            'highs': today_highs,
+            'lows': today_lows,
+            'volumes': today_volumes
+        })        
+        today_first_open = today_chart.get('opens')[0]
+        return (today_first_open - last_close) / last_close
+
 
     def getNumNewHighs(self, chart, index):
         print 'getNumNewHighs()'
@@ -167,13 +203,14 @@ class Sequencer:
         print 'setTallestCandles()'
         self.charts.each(self.getTallestCandles)
 
-    def getNewsitems(self, chart, index):
+    def fetchNewsitems(self, chart, index):
         print 'getNewsitems()'
         newsitems = News({'symbol': chart.get('symbol')})
         news = newsitems.fetch()
         chart.set('news', newsitems.get('items'))
+        self.observations.at(index).set('age_recent_news', chart.get('news_age'))
 
-    def setNewsitems(self):
-        print 'setNewsitems()'
-        self.charts.each(self.getNewsitems)
+    def setNews(self):
+        print 'getNews()'
+        self.charts.each(self.fetchNewsitems)
 

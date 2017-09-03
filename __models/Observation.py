@@ -22,5 +22,8 @@ class Observation(Model):
             'percent_change',
             'tallest_green_candlestick',
             'tallest_red_candlestick',
-            'age_recent_news'
+            'age_recent_news',
+            'market_open_datetime',
+            'market_close_datetime',
+            'next_market_open_margin'
         ]

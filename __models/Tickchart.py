@@ -2,6 +2,7 @@ from Model import Model
 from Candlesticks import Candlesticks
 from Newsitems import Newsitems
 import utils
+from datetime import datetime, timedelta
 
 class Tickchart(Model):
     def __init__(self, options={}):
@@ -9,6 +10,9 @@ class Tickchart(Model):
 
     def props(self):
         return [
+            'num_ticks',
+            'market_open_datetime',
+            'market_close_datetime',
             'opens',
             'closes',
             'highs',
@@ -19,7 +23,10 @@ class Tickchart(Model):
             'avg_volume',
             'percent_change',
             'candlesticks',
-            'news'
+            'news',
+            'news_age',
+            'last_close',
+            'next_market_open_margin'
         ]
 
     def collections(self):
@@ -29,10 +36,17 @@ class Tickchart(Model):
         }
 
     def onPopulate(self, chart):
+        self.set('num_ticks', len(self.get('opens')))
         self.setAvgVolume()
+        self.setMarketTimes()
         self.normalizePrices()
         self.setPercentChange()
+        self.setLastClose()
         self.setCandlesticks()
+
+    def onChange(self, data):
+        if utils.has(data, 'news'):
+            self.set('news_age', self.getNewsAge(data['news'].toJSON()))
 
     def setAvgVolume(self):
         volumes = self.get('volumes')
@@ -47,6 +61,10 @@ class Tickchart(Model):
             return 0
         else:
             return volume
+
+    def setMarketTimes(self):
+        self.set('market_open_datetime', datetime.fromtimestamp(self.get('timestamps')[0]))
+        self.set('market_close_datetime', datetime.fromtimestamp(self.get('timestamps')[self.get('num_ticks')-1]))
 
     def normalizePrices(self):
         highs = self.get('highs')
@@ -104,3 +122,18 @@ class Tickchart(Model):
                 'close': closes[key]
             })
         self.set('candlesticks', candlesticks)
+
+    def getNewsAge(self, news):
+        newest_age = timedelta(days=365, hours=0, minutes=0, seconds=0)
+        now = datetime.utcnow()
+        for headline in news:
+            age = now - headline['pubDate']
+            if age < newest_age:
+                newest_age = age
+                newest_headline = headline
+        return int(newest_age.total_seconds() / 60 / 60)
+
+
+    def setLastClose(self):
+        last_index = len(self.get('closes')) - 1
+        self.set('last_close', self.get('closes')[last_index])

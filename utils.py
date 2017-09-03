@@ -32,6 +32,12 @@ def previous_market_times(dt):
         ret.append(epoch(t))
     return ret
 
+def current_market_times(dt):
+    ret = []
+    marketday = set_market_time(dt)
+    for t in marketday:
+        ret.append(epoch(t))
+    return ret
 
 def has(obj, target):
     ret = False
@@ -77,3 +83,16 @@ def parsePubDate(d):
     # Wed, 26 Jul 2017 19:00:00 +0000
     ret = datetime.strptime(d[0:25], "%a, %d %b %Y %H:%M:%S")
     return ret
+
+def dictList(obj):
+    keystr = '('
+    valstr = '('
+    for key, value in obj.iteritems():
+      keystr += (str(key) + ", ")
+      valstr += ("'" + str(value) + "', ")
+    keystr = keystr[0:-2]
+    valstr = valstr[0:-2]
+    keystr += ')'
+    valstr += ')'
+    return (keystr, valstr)
+
