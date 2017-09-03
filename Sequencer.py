@@ -15,6 +15,7 @@ class Sequencer:
         print 'Observations instance initialized with length:', self.observations.length
         self.today = dt
         self.yesterday_market_times = utils.previous_market_times(self.today)
+        print 'Getting yesterdays chart for:', datetime.fromtimestamp(self.yesterday_market_times[0])
         self.today_market_times = utils.current_market_times(self.today)
         self.charts = Tickcharts()
 
@@ -64,6 +65,10 @@ class Sequencer:
             'ticker': symbol
         })
         chart = chart_instance.fetch()
+        try:
+            chart.get('chart')
+        except:
+            return None
         results = chart.get('chart').get('result').at(0)
         if not results.has('timestamp'):
             return None
@@ -85,7 +90,8 @@ class Sequencer:
         last_close = return_chart.get('closes')[len(closes)-1]
         tomorrow_open_margin = self.getTodaysOpenMargin(symbol, last_close)
         return_chart.set('next_market_open_margin', tomorrow_open_margin)
-        self.charts.append(return_chart)
+        if return_chart.get('next_market_open_margin') != None:
+            self.charts.append(return_chart)
         return return_chart
 
     def getTodaysOpenMargin(self, symbol, last_close):
@@ -96,7 +102,13 @@ class Sequencer:
             'ticker': symbol
         })
         chart = chart_instance.fetch()
+        try:
+            chart.get('chart')
+        except:
+            return None
         results = chart.get('chart').get('result').at(0)
+        if not results.has('timestamp'):
+            return None
         today_timestamps = results.get('timestamp')
         today_opens = results.get('indicators').get('quote').at(0).get('open')
         today_closes = results.get('indicators').get('quote').at(0).get('close')

@@ -3,6 +3,7 @@ from Candlesticks import Candlesticks
 from Newsitems import Newsitems
 import utils
 from datetime import datetime, timedelta
+import pytz
 
 class Tickchart(Model):
     def __init__(self, options={}):
@@ -63,8 +64,8 @@ class Tickchart(Model):
             return volume
 
     def setMarketTimes(self):
-        self.set('market_open_datetime', datetime.fromtimestamp(self.get('timestamps')[0]))
-        self.set('market_close_datetime', datetime.fromtimestamp(self.get('timestamps')[self.get('num_ticks')-1]))
+        self.set('market_open_datetime', datetime.fromtimestamp(self.get('timestamps')[0], pytz.UTC))
+        self.set('market_close_datetime', datetime.fromtimestamp(self.get('timestamps')[self.get('num_ticks')-1], pytz.UTC))
 
     def normalizePrices(self):
         highs = self.get('highs')
@@ -125,9 +126,11 @@ class Tickchart(Model):
 
     def getNewsAge(self, news):
         newest_age = timedelta(days=365, hours=0, minutes=0, seconds=0)
-        now = datetime.utcnow()
+        close_time = self.get('market_close_datetime')
         for headline in news:
-            age = now - headline['pubDate']
+            if headline['pubDate'] > close_time:
+                continue
+            age = close_time - headline['pubDate']
             if age < newest_age:
                 newest_age = age
                 newest_headline = headline

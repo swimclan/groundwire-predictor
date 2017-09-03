@@ -1,3 +1,5 @@
+import sys
+
 # Setup module directories
 from __setmodules__ import modulize
 modulize('__models', '__lib', '__collections')
@@ -12,10 +14,12 @@ import utils
 import Process
 process = Process.getInstance(open('trading-data/.env', 'r'))
 
+target_date = utils.parseISODate(sys.argv[1])
+
 # kick off data collection sequence
 if process.env['MASTER_SWITCH'] == 'on':
     from Sequencer import Sequencer
-    sequencer = Sequencer(datetime(2017, 8, 22))
+    sequencer = Sequencer(target_date)
     sequencer.start()
 
 ###################### S A M P L E  C O D E  S T A R T ######################

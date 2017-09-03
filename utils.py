@@ -2,6 +2,7 @@
 from datetime import datetime, timedelta, date
 from pydash import collections
 from pydash import numerical
+import pytz
 
 def last_weekday(dt=datetime.now()):
     found = False
@@ -81,7 +82,7 @@ def isMorning(epoch):
 
 def parsePubDate(d):
     # Wed, 26 Jul 2017 19:00:00 +0000
-    ret = datetime.strptime(d[0:25], "%a, %d %b %Y %H:%M:%S")
+    ret = datetime.strptime(d[0:25], "%a, %d %b %Y %H:%M:%S").replace(tzinfo=pytz.UTC)
     return ret
 
 def dictList(obj):
@@ -96,3 +97,10 @@ def dictList(obj):
     valstr += ')'
     return (keystr, valstr)
 
+def parseISODate(d):
+  d_arr = d.split('-')
+  if len(d_arr) < 3:
+    print 'ERROR! Invalid date string supplied!'
+  else:
+    return datetime(int(d_arr[0]), int(d_arr[1]), int(d_arr[2]))
+    
