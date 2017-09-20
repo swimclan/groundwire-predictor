@@ -2,7 +2,7 @@ import sys
 
 # Setup module directories
 from __setmodules__ import modulize
-modulize('__models', '__lib', '__collections')
+modulize('__models', '__lib', '__collections', '__controllers')
 
 # Get datetime module
 from datetime import datetime, date
@@ -14,13 +14,22 @@ import utils
 import Process
 process = Process.getInstance(open('trading-data/.env', 'r'))
 
-target_date = utils.parseISODate(sys.argv[1])
+program = sys.argv[1]
 
-# kick off data collection sequence
 if process.env['MASTER_SWITCH'] == 'on':
-    from Sequencer import Sequencer
-    sequencer = Sequencer(target_date)
-    sequencer.start()
+    if program == 'collect':
+        target_date = utils.parseISODate(sys.argv[2])
+        # kick off data collection sequence    
+        from Collector import Collector
+        collector = Collector(target_date)
+        collector.start()
+    elif program == 'train':
+        from Trainer import Trainer
+        trainer = Trainer()
+        trainer.start()
+
+    else:
+        print 'Invalid parameters given.  Shutting down...'
 
 ###################### S A M P L E  C O D E  S T A R T ######################
 

@@ -4,6 +4,9 @@ from Newsitems import Newsitems
 import utils
 from datetime import datetime, timedelta
 import pytz
+import config
+
+MAX_NEWS_AGE = int(config.get('max_news_age'))
 
 class Tickchart(Model):
     def __init__(self, options={}):
@@ -47,7 +50,10 @@ class Tickchart(Model):
 
     def onChange(self, data):
         if utils.has(data, 'news'):
-            self.set('news_age', self.getNewsAge(data['news'].toJSON()))
+            if data['news']:
+                self.set('news_age', self.getNewsAge(data['news'].toJSON()))
+            else:
+                self.set('news_age', MAX_NEWS_AGE)
 
     def setAvgVolume(self):
         volumes = self.get('volumes')
@@ -125,7 +131,7 @@ class Tickchart(Model):
         self.set('candlesticks', candlesticks)
 
     def getNewsAge(self, news):
-        newest_age = timedelta(days=365, hours=0, minutes=0, seconds=0)
+        newest_age = timedelta(days=MAX_NEWS_AGE/24, hours=0, minutes=0, seconds=0)
         close_time = self.get('market_close_datetime')
         for headline in news:
             if headline['pubDate'] > close_time:

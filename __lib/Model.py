@@ -19,7 +19,9 @@ class Model:
         return {}
 
     def get(self, prop):
-        return self.attributes[prop]
+        if self.has(prop):
+            return self.attributes[prop]
+        return None
 
     def set(self, prop, value):
         if _.index_of(self.props(), prop) != -1:

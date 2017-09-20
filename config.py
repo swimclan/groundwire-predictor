@@ -2,6 +2,7 @@ from pydash import objects
 import process
 
 _config = {
+    'max_news_age': process.env['MAX_NEWS_AGE'], 
     'msn': {
         'api': {
             'method': 'get',
@@ -9,7 +10,7 @@ _config = {
                 'root': 'https://www.msn.com/en-us/money/getfilterresponse',
                 'params': {
                     'filters'   :   'Country|USA',
-                    'ranges'    :   'RtCap|0;13166~Mc|1000000000;10000000000~Pp|10;25~Nmp|0;2610~PrCh6Mo|0;10',
+                    'ranges'    :   'Mc|1000000000;10000000000~Pp|10;100',
                     'sortedby'  :   'Mc',
                     'sortorder' :   'DSC',
                     'count'     :   100,

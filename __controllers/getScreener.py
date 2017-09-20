@@ -1,1 +1,0 @@
-# Controller for getting screener stocks for capture (coming sooon)

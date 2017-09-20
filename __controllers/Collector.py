@@ -8,7 +8,7 @@ from News import News
 import utils
 import re
 
-class Sequencer:
+class Collector:
     def __init__(self, dt=datetime.now()):
         print 'Sequencer initialized...'
         self.observations = Observations()
@@ -66,10 +66,9 @@ class Sequencer:
         })
         chart = chart_instance.fetch()
         try:
-            chart.get('chart')
+            results = chart.get('chart').get('result').at(0)
         except:
             return None
-        results = chart.get('chart').get('result').at(0)
         if not results.has('timestamp'):
             return None
         timestamps = results.get('timestamp')
