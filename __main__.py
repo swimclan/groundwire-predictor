@@ -21,7 +21,11 @@ if process.env['MASTER_SWITCH'] == 'on':
         target_date = utils.parseISODate(sys.argv[2])
         # kick off data collection sequence    
         from Collector import Collector
-        collector = Collector(target_date)
+        collector = Collector(target_date, False)
+        collector.start()
+    elif program == 'predict':
+        from Collector import Collector
+        collector = Collector(datetime.now(), True)
         collector.start()
     elif program == 'train':
         from Trainer import Trainer

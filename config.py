@@ -2,7 +2,10 @@ from pydash import objects
 import process
 
 _config = {
-    'max_news_age': process.env['MAX_NEWS_AGE'], 
+    'max_news_age': process.env['MAX_NEWS_AGE'],
+    'predict': {
+        'filename': 'predict.json'
+    },
     'msn': {
         'api': {
             'method': 'get',
@@ -45,6 +48,17 @@ _config = {
                 'root': 'http://finance.yahoo.com/rss/headline',
                 'params': {
                     's'     : 'AAPL'
+                }
+            }
+        }
+    },
+    'intrinio': {
+        'api': {
+            'method': 'get',
+            'url': {
+                'root': 'https://api.intrinio.com/news',
+                'params': {
+                    'identifier'    :   'AAPL'
                 }
             }
         }

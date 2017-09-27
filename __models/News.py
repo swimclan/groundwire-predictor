@@ -2,45 +2,48 @@ from Model import Model
 from Newsitems import Newsitems
 import RSSParse as rss
 from urllib import urlencode
-from urllib2 import urlopen
+from urllib2 import urlopen, Request
 import process
 import utils
 import config
+import json
+import base64
 
 class News(Model):
     def __init__(self, options={}):
         Model.__init__(self, options)
         params = {}
         if utils.has(options, 'symbol'):
-            params['s'] = options['symbol']
+            params['identifier'] = options['symbol']
         else:
-            params = config.get('yahoo.rss.url.params')
+            params = config.get('intrinio.api.url.params')
 
-        self.url = config.get('yahoo.rss.url.root') + '?' + urlencode(params)
+        self.url = config.get('intrinio.api.url.root') + '?' + urlencode(params)
 
     def props(self):
         return [
-            'title',
-            'link',
-            'lastBuildDate',
-            'language',
-            'items',
-            'copyright',
-            'description'
+            'data'
         ]
 
     def collections(self):
         return {
-            'items': Newsitems
+            'data': Newsitems
         }
 
     def fetch(self):
+        request = Request(self.url)
+        base64string = base64.b64encode('%s:%s' % (process.env['INTRINIO_USER'], process.env['INTRINIO_PASS']))
+        request.add_header("Authorization", "Basic %s" % base64string)
         try:
-            opener = urlopen(self.url, timeout=float(process.env['FETCH_TIMEOUT']))
-            json_response = rss.parse(opener.read())
+            opener = urlopen(url=request, timeout=float(process.env['FETCH_TIMEOUT']))
+            json_response = json.loads(opener.read())
         except:
             json_response = {}
         if type(json_response) is dict:
-            self.onFetch(json_response)
+            ret = {'data': []}
+            try:
+                ret['data'] = utils.serializeNews(json_response['data'])
+            except:
+                print 'No data response from news fetch'
+            self.onFetch(ret)
         return self
-        

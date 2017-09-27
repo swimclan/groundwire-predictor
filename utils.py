@@ -81,8 +81,15 @@ def isMorning(epoch):
     return True
 
 def parsePubDate(d):
-    # Wed, 26 Jul 2017 19:00:00 +0000
-    ret = datetime.strptime(d[0:25], "%a, %d %b %Y %H:%M:%S").replace(tzinfo=pytz.UTC)
+    # 2017-09-26 13:35:00 +0000
+    ret = datetime.strptime(d[0:19], "%Y-%m-%d %H:%M:%S").replace(tzinfo=pytz.UTC)
+    return ret
+
+def serializeNews(newsitems):
+    ret = []
+    for item in newsitems:
+        item['publication_date'] = parsePubDate(item['publication_date'])
+        ret.append(item)
     return ret
 
 def dictList(obj):

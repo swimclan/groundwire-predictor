@@ -25,5 +25,6 @@ class Observation(Model):
             'age_recent_news',
             'market_open_datetime',
             'market_close_datetime',
-            'next_market_open_margin'
+            'next_market_open_margin',
+            'next_open_up'
         ]

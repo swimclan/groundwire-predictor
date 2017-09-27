@@ -30,7 +30,8 @@ class Tickchart(Model):
             'news',
             'news_age',
             'last_close',
-            'next_market_open_margin'
+            'next_market_open_margin',
+            'next_open_up'
         ]
 
     def collections(self):
@@ -54,6 +55,8 @@ class Tickchart(Model):
                 self.set('news_age', self.getNewsAge(data['news'].toJSON()))
             else:
                 self.set('news_age', MAX_NEWS_AGE)
+        elif utils.has(data, 'next_market_open_margin'):
+            self.set('next_open_up', self.getOpenMarginClass(data['next_market_open_margin']))
 
     def setAvgVolume(self):
         volumes = self.get('volumes')
@@ -134,9 +137,9 @@ class Tickchart(Model):
         newest_age = timedelta(days=MAX_NEWS_AGE/24, hours=0, minutes=0, seconds=0)
         close_time = self.get('market_close_datetime')
         for headline in news:
-            if headline['pubDate'] > close_time:
+            if headline['publication_date'] > close_time:
                 continue
-            age = close_time - headline['pubDate']
+            age = close_time - headline['publication_date']
             if age < newest_age:
                 newest_age = age
                 newest_headline = headline
@@ -146,3 +149,29 @@ class Tickchart(Model):
     def setLastClose(self):
         last_index = len(self.get('closes')) - 1
         self.set('last_close', self.get('closes')[last_index])
+
+    def getOpenMarginClass(self, margin):
+        if margin < -0.05:
+            return -6
+        elif margin >= -0.05 and margin < -0.04:
+            return  -5
+        elif margin>=-0.04 and margin<-0.03:
+            return  -4
+        elif margin>=-0.03 and margin<-0.02:
+            return  -3
+        elif margin>=-0.02 and margin<-0.01:
+            return  -2
+        elif margin>=-0.01 and margin<0:
+            return  -1
+        elif margin>=0 and margin<0.01:
+            return  0
+        elif margin>=0.01 and margin<0.02:
+            return  1
+        elif margin>=0.02 and margin<0.03:
+            return  2
+        elif margin>=0.03 and margin<0.04:
+            return  3
+        elif margin>=0.04 and margin<0.05:
+            return  4
+        elif margin>=0.05:
+            return  5

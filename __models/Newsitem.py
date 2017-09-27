@@ -6,9 +6,11 @@ class Newsitem(Model):
     
     def props(self):
         return [
+            'ticker',
+            'figi_ticker',
+            'figi',
             'title',
-            'pubDate',
-            'link',
-            'guid',
-            'description'
+            'publication_date',
+            'summary',
+            'url'
         ]

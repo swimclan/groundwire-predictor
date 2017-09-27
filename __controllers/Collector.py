@@ -1,19 +1,25 @@
 from Observations import Observations
-from datetime import datetime
+from datetime import datetime, timedelta
 from Screener import Screener
 from ChartAnalysis import ChartAnalysis
 from Tickcharts import Tickcharts
 from Tickchart import Tickchart
 from News import News
 import utils
+import config
 import re
+import json
 
 class Collector:
-    def __init__(self, dt=datetime.now()):
+    def __init__(self, dt=datetime.now(), predict=False):
         print 'Sequencer initialized...'
+        self.predict = predict
         self.observations = Observations()
         print 'Observations instance initialized with length:', self.observations.length
-        self.today = dt
+        if self.predict:
+            self.today = dt + timedelta(days=1)
+        else:
+            self.today = dt
         self.yesterday_market_times = utils.previous_market_times(self.today)
         print 'Getting yesterdays chart for:', datetime.fromtimestamp(self.yesterday_market_times[0])
         self.today_market_times = utils.current_market_times(self.today)
@@ -30,11 +36,14 @@ class Collector:
         self.setNumNewHighs()
         self.setNumNewLows()
         self.setTallestCandles()
-        # self.printObservations()
-        self.observations.create()
+        if not self.predict:
+            self.observations.create()
+        else:
+            self.printObservations()
     
     def printObservations(self):
-        self.observations.each(self.printObservation)
+        prediction_file = open('../' + config.get('predict.filename'), 'wb')
+        prediction_file.write(json.dumps(self.observations.toJSON()))
 
     def printObservation(self, observation, index):
         print observation.toJSON()
@@ -86,10 +95,12 @@ class Collector:
             'lows': lows,
             'volumes': volumes
         })
-        last_close = return_chart.get('closes')[len(closes)-1]
-        tomorrow_open_margin = self.getTodaysOpenMargin(symbol, last_close)
-        return_chart.set('next_market_open_margin', tomorrow_open_margin)
-        if return_chart.get('next_market_open_margin') != None:
+        if not self.predict:
+            last_close = return_chart.get('closes')[len(closes)-1]
+            tomorrow_open_margin = self.getTodaysOpenMargin(symbol, last_close)
+            return_chart.set('next_market_open_margin', tomorrow_open_margin)
+
+        if (return_chart.get('next_market_open_margin') != None and not self.predict) or self.predict:
             self.charts.append(return_chart)
         return return_chart
 
@@ -103,9 +114,10 @@ class Collector:
         chart = chart_instance.fetch()
         try:
             chart.get('chart')
+            results = chart.get('chart').get('result').at(0)
         except:
+            print 'Could not parse results from chart: %s' % symbol
             return None
-        results = chart.get('chart').get('result').at(0)
         if not results.has('timestamp'):
             return None
         today_timestamps = results.get('timestamp')
@@ -218,7 +230,7 @@ class Collector:
         print 'getNewsitems()'
         newsitems = News({'symbol': chart.get('symbol')})
         news = newsitems.fetch()
-        chart.set('news', newsitems.get('items'))
+        chart.set('news', newsitems.get('data'))
         self.observations.at(index).set('age_recent_news', chart.get('news_age'))
 
     def setNews(self):
