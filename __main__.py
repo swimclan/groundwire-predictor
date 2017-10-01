@@ -17,21 +17,24 @@ process = Process.getInstance(open('trading-data/.env', 'r'))
 program = sys.argv[1]
 
 if process.env['MASTER_SWITCH'] == 'on':
-    if program == 'collect':
+    if program == 'collect' and len(sys.argv) > 2:
         target_date = utils.parseISODate(sys.argv[2])
         # kick off data collection sequence    
         from Collector import Collector
         collector = Collector(target_date, False)
         collector.start()
-    elif program == 'predict':
+    elif program == 'collect' and len(sys.argv) <= 2:
         from Collector import Collector
         collector = Collector(datetime.now(), True)
         collector.start()
     elif program == 'train':
-        from Trainer import Trainer
-        trainer = Trainer()
-        trainer.start()
-
+        from Learner import Learner
+        learner = Learner(False)
+        learner.start()
+    elif program == 'predict':
+        from Learner import Learner
+        learner = Learner(True, False)
+        learner.start()
     else:
         print 'Invalid parameters given.  Shutting down...'
 
