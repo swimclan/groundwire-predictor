@@ -12,8 +12,8 @@ _config = {
             'url': {
                 'root': 'https://www.msn.com/en-us/money/getfilterresponse',
                 'params': {
-                    'filters'   :   'Ind|Gold~Country|USA',
-                    'ranges'    :   'Nmp|0;1000~Mc|1000000000;10000000000',
+                    'filters'   :   'Country|USA',
+                    'ranges'    :   'Nmp|0;1000~Mc|1000000000;2000000000',
                     'sortedby'  :   'Mc',
                     'sortorder' :   'DSC',
                     'count'     :   100,

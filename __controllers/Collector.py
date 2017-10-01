@@ -43,7 +43,7 @@ class Collector:
     
     def printObservations(self):
         printer = []
-        prediction_file = open('./trading-data/' + config.get('predict.filename'), 'wb')
+        prediction_file = open('./trading-data/' + config.get('predict.filename'), 'w+')
         for observation in self.observations.toJSON():
             item = observation
             item['market_open_datetime'] = str(observation['market_open_datetime'])

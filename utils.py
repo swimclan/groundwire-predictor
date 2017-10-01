@@ -111,3 +111,10 @@ def parseISODate(d):
   else:
     return datetime(int(d_arr[0]), int(d_arr[1]), int(d_arr[2]))
     
+def filterNoNews(observations):
+    print observations[0]
+    ret = []
+    for item in observations:
+        if item['age_recent_news'] < 8760:
+            ret.append(item)
+    return ret

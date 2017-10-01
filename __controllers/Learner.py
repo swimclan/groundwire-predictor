@@ -7,6 +7,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 import json
 import config
+import utils
 
 class Learner:
     def __init__(self, predict=False, test=True):
@@ -67,7 +68,7 @@ class Learner:
             print 'Parsing predict.json for observations...'
             prediction_file = open('./trading-data/' + config.get('predict.filename'), 'rb')
             prediction_json = prediction_file.read().replace('\n', '')
-            self.predictors = json.loads(prediction_json)
+            self.predictors = utils.filterNoNews(json.loads(prediction_json))
             predf = pd.DataFrame(self.predictors)
             self.df = predf[[
                 'num_new_highs',
@@ -114,5 +115,4 @@ class Learner:
             insert['symbol'] = self.predictors[key]['symbol']
             insert['class'] = item
             ret.append(insert)
-
-        print ret
+        print json.dumps(ret)
